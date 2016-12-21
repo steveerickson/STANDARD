@@ -108,12 +108,30 @@ dv<- gbomb[vnum]
 rv
 } 
 
-Phaser<- function(fp) {
+#Phaser<- function(fp) {
+#  psav<- grep("\\.sav",fp)
+#  pcsv<- grep("\\.csv",fp)
+#  pdbf<- grep("\\.dbf",fp)
+#  dval<- if (length(psav)>0) {library(memisc)
+#    data.frame(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
+#    if (length(psav)>0) return(dval)
+#  cval<-   if (length(pcsv)>0) (read.csv(fp,sep=",",header=T,as.is=T))
+#    if (length(pcsv)>0) return(cval)
+#  dbfl<- if (length(pdbf>0)) {library(foreign)
+#    read.dbf(fp,as.is=T)}
+#    if (length(pdbf)>0) return(dbfl)
+#}
+#
+#'
+#'
+#DEPRECATING PHASER in favor of Plasma
+plasma<- function(fp) {
   psav<- grep("\\.sav",fp)
   pcsv<- grep("\\.csv",fp)
   pdbf<- grep("\\.dbf",fp)
-  dval<- if (length(psav)>0) {library(memisc)
-    data.frame(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
+  dval<- if (length(psav)>0) {library(memisc) 
+    library(data.table)
+    as.data.table(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
     if (length(psav)>0) return(dval)
   cval<-   if (length(pcsv)>0) (read.csv(fp,sep=",",header=T,as.is=T))
     if (length(pcsv)>0) return(cval)
@@ -121,13 +139,12 @@ Phaser<- function(fp) {
     read.dbf(fp,as.is=T)}
     if (length(pdbf)>0) return(dbfl)
 }
-#Phaser enhancements
-  #EXCEL HANDLER
-  #AUTOMATIC NA-RECODING
-  #Large file detection + Handling
-    #Get file size
-    #gET FF PACKAGE knowledge
-  
+##################################################################
+##################################################################
+##################################################################
+#####################END PLASMA FUNCTION##########################
+##################################################################
+
 #HSPAM takes a dataframe and rips out the numeric variables
 #Then produces a bunch of histograms for each one dumps it onto HDD Data
  hspam<- function(df) {
