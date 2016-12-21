@@ -1,0 +1,85 @@
+---
+title: "Evaluating Data-table"
+output: html_notebook
+---
+
+Is it all it's cracked up to be?  Let's see if it handles factors better than Phaser for a CSV.  
+
+```{r}
+library(data.table)
+fool<- list.files("C:/GAFCP/SA_Database/Self-Assessments")
+
+folders<- list.files(paste("C:/GAFCP/SA_Database/Self-Assessments/",fool,sep=""),full.names=T)
+fsav<- grep("\\.sav",folders)
+ffsav <- folders[fsav]
+ffsav
+```
+
+```{r}
+test1 <- Phaser(ffsav[5])
+```
+```{r}
+write.table(test1,"C:/GAFCP/SA_Database/Self-Assessments/2005 Self-assessment/Q15-05.csv",sep=",")
+```
+Test 1 table has been written out as a csv let's see how data table handles it.  
+```{r}
+vroom <- fread("C:/GAFCP/SA_Database/Self-Assessments/2005 Self-assessment/Q15-05.csv")
+str(vroom)
+```
+
+Interesting.  To its credit, it dealt well with the character vector and read the table quickly.
+
+```{r}
+pos<- Phaser("C:/GAFCP/SA_Database/Self-Assessments/2005 Self-assessment/Q15-05.csv")
+```
+
+Ah, but so did Phaser - looks like it performs fine when the file is a csv.  Does table even handle sav files probably not.
+
+```{r}
+test2 <- fread(ffsav[5])
+```
+
+Hah, yeah real hard time with the sav file.  
+
+Well one more thing: If I wrap my Phaser command for Savs around Data table instead of data frame does it come out any different.  Let's try the Phaser bank with the as.data.table command
+
+```{r}
+
+PhaserBank<- function(fp) {
+  psav<- grep("\\.sav",fp)
+  pcsv<- grep("\\.csv",fp)
+  pdbf<- grep("\\.dbf",fp)
+  dval<- if (length(psav)>0) {library(memisc) 
+    library(data.table)
+    as.data.table(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
+    if (length(psav)>0) return(dval)
+  cval<-   if (length(pcsv)>0) (read.csv(fp,sep=",",header=T,as.is=T))
+    if (length(pcsv)>0) return(cval)
+  dbfl<- if (length(pdbf>0)) {library(foreign)
+    read.dbf(fp,as.is=T)}
+    if (length(pdbf)>0) return(dbfl)
+}
+```
+```{r}
+testbank <- PhaserBank(ffsav[5])
+str(testbank)
+```
+
+Wow that came out looking pretty fancy.  Automatic coercion to character vectors indeed! I wonder if this will make my melting operations any easier?  
+
+
+**EVALUATION PASSED!**:  Examining data table documentation for other potentially useful features.
+
+Auto-Merge
+===============
+
+If this works I'll be a happy camper.
+
+```{r}
+f6 <- PhaserBank(ffsav[6])
+mty<- merge(testbank,f6, by="county",all.x=T,all.y=T)
+str(mty)
+```
+
+Now this is more like it!   As long as all.x And ALL.y=T we're golden.  So this may make the horizontal joins easier.  
+
