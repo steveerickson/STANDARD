@@ -9,7 +9,7 @@ DNALIST<- function(filepath) {
   sns<- grep("\\.sav",lfs)
   son<- lfs[sns]
   sloan<- as.list(son)
-  pappy<- lapply(sloan,Phaser)
+  pappy<- lapply(sloan,plasma)
   #Grab the file names Gsub the whitepsace 
   #Then call pappy those names
   sfs<- list.files(filepath)
