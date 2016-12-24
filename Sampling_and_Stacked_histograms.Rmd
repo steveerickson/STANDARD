@@ -136,8 +136,8 @@ Let's see what 375 yields.
 def$m375 <-  msample(population,1000,350)
 hist(def$m250, col="lightblue", 
   xlab="Sample mean",
-  ylab="Number of samples", 
-  main="Three distributions of 1000 sample means for \n population size 4,000 (M=0, SD=1)")
+  ylab="Number of samples",
+  main="Sample mean frequency by size")
 hist(def$m375, col="purple", add=T, density=20, angle=-75)
 hist(def$m500, col="red", add=T)
 hist(def$m750, col="yellow", add=T, density=10)
@@ -145,4 +145,21 @@ legend("topright",c("n=250","n=375","n=500","n=750"), col=c("lightblue","purple"
 box()
 
 ```
-Interesting, going from 200 to 375 helps but not that much.  The jump to 500 appears to make a good chunk of difference.  
+Interesting, going from 200 to 375 helps but not that much.  The jump to 500 appears to make a good chunk of difference.  I wouldn't shoot past 500 - with a population size of only 4,000 there's only so much good that extra sampling can do you.  Based on these histograms, I would say shoot for 500 if you want to be really precise, but also know that an n of 250 will get you pretty close to the population mean.  Bear in mind, this is all based on you taking a totally random sample from your population, with no replacement.  
+
+Playing around with options
+============
+ 
+```{r}
+hist(def$m250, col="lightblue", 
+  xlab="Sample mean",
+  ylab="Number of samples",
+  main="Sample mean frequency by size")
+hist(def$m375, col="purple", add=T, density=20, angle=-75)
+hist(def$m500, col="red", add=T)
+hist(def$m750, col="yellow", add=T, density=10)
+legend("topright",c("n=250","n=375","n=500","n=750"), col=c("lightblue","purple","red","yellow"),lwd=10)
+box()
+
+```
+
