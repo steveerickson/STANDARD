@@ -1,0 +1,14 @@
+---
+title: "Sampling"
+output: html_notebook
+---
+
+
+
+
+
+```{r}
+plot(cars)
+```
+
+

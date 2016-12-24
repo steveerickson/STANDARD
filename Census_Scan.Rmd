@@ -1,0 +1,29 @@
+---
+title: "Census_Scan"
+output: html_notebook
+---
+
+
+```{r}
+h <- readLines("G:/CENSUS/acs2010_5yr/summaryfile/2006-2010_ACSSF_All_In_2_Giant_Files(Experienced-Users-Only)/All_Geographies_Not_Tracts_Block_Groups/All_Geographies_Not_Tracts_Block_Groups",n=100)
+G:\CENSUS\acs2010_5yr\summaryfile\
+```
+
+Attempting to read in GA Data
+
+```{r}
+hg <- plasma("G:/CENSUS/acs2010_5yr/summaryfile/2006-2010_ACSSF_All_In_2_Giant_Files(Experienced-Users-Only)/2010_ACS_Geography_Files/geog/g20105ga.csv")
+str(hg)
+```
+
+That did not appear successful.  Let's try fread on a random ACS File GA:
+
+U
+```{r}
+library(data.table)
+fscan <- list.files("G:/CENSUS/acs2010_5yr/summaryfile/2006-2010_ACSSF_By_State_All_Tables/Georgia_All_Geographies_Not_Tracts_Block_Groups",
+  full.names=T)
+feeb <- fread(fscan[1])
+```
+
+Interesting....Not sure what that means.
