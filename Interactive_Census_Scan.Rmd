@@ -1,0 +1,38 @@
+---
+title: "Interactive_Census_Scan"
+output: html_notebook
+---
+
+Trying to create a census scanner script which accepts interactive input from the user.  For example ,search the census database for "race".  Found 11 tables:
+1  TABLE DESCRIPTION
+2  TABLE DESC...... ETC.
+
+Which of the following?  (Accepts 1:19, all, etc. as input from the user)
+takes user input and proceeds with request
+
+Playing around with tips from this link [here](http://stackoverflow.com/questions/3935288/how-to-include-interactive-input-in-script-to-be-run-from-the-command-line).  
+
+SUCCESS!
+==============
+
+```{r}
+#Attempting
+
+  cat("Please select:  ")
+  x <- readLines(file("stdin"),1)
+  print(x)
+#As a function this did prompt with cat and opened a connection but there was no way I could see to terminate connection.  
+```
+
+```{r}
+yike <- function() {
+  
+cat("Hello mate!") 
+  x <- readLines(con=stdin(),1)
+  print(x)
+}
+
+yike()
+```
+
+Excellent!  This returns the printed response from the keyboard and can be used for the interactive script! 

@@ -1,0 +1,22 @@
+---
+title: "Shiny_Interface"
+output: html_notebook
+---
+
+Load libraries
+
+```{r}
+source("C:/git/standard/sfunctions.R")
+library(shiny)
+runExample("01_hello")
+```
+
+ 
+
+```{r} 
+library(data.table)
+table_lookup <-  fread("G:/CENSUS/acs2010_5yr/summaryfile/Sequence_Number_and_Table_Number_Lookup.txt")
+str(table_lookup)
+
+```
+
