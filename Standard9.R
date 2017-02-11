@@ -1,3 +1,6 @@
+
+#REMINDER:  Write a wrapper for ggplot's obscenely complex code so you never have to deal with this bullshit again
+
 #Attempting a standard set of data analysis tools for use with R
 #Phaser:  AUTOMATIC DATA SELECTOR - FIRE AND FORGET
 #STANDARD SCRIPT
