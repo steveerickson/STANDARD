@@ -9,11 +9,12 @@ Judo<- function(df,vnum) {
   rv<- df[ , !(names(df) %in% dv)]
   rv
 } 
-
+ 
 plasma<- function(fp) {
   psav<- grep("\\.sav",fp)
   pcsv<- grep("\\.csv",fp)
   pdbf<- grep("\\.dbf",fp)
+  pxls <- grep("\\.xls",fp)
   dval<- if (length(psav)>0) {library(memisc) 
     library(data.table)
     as.data.table(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
@@ -23,8 +24,11 @@ plasma<- function(fp) {
   dbfl<- if (length(pdbf>0)) {library(foreign)
     read.dbf(fp,as.is=T)}
   if (length(pdbf)>0) return(dbfl)
+  dxls <- if (length(pxls>0)) {library(readxl)
+    read_excel(fp)}
+  if (length(pxls>0)) return(dxls)
 }
-  #ENHANCE:  Add XLS and XLSX processing to plASMA
+
 
 hspam<- function(df) {
   library(ggplot2)
@@ -56,3 +60,5 @@ Spiderman<- function(data,dcols) {
   smat<- Matrix(mat,sparse=T)
   smat
 }
+
+
