@@ -1,8 +1,55 @@
+
+#WRITE! WRITE!   Quick write function, takes objc and fn, and if fn is not specified 
+#It executes a quickwrite 
+ww <- function(obj, fn=NULL) {
+  fudg <- sample(1:500000, 1)
+  ffn <- paste("C:/databin/Quickwrite_",fudg,".csv",sep="")
+  fn <-  if (is.character(fn) == FALSE) {fn <- ffn} else {fn <- fn}
+  write.table(obj, fn, sep=",", row.names=F)
+}
+
+
+
+
+#Qna takes a df and returns the percent missing for each variable.  Handy!
+qna <- function(df) {
+  sumna <- sapply(df, function(x) sum(as.numeric(is.na(x))))
+  pctnas <- (sumna/nrow(df))*100
+  return(pctnas)
+}
+
+
+#Full file list.
+#ENHANCE:  it'd be nice if theprint was prettier, and it listed the "FILE TYPE" 
+#Spelled out, and maybe file size or date
+
+FF <- function(dir) {
+  list.files(dir, full.names=T,
+             recursive=T, 
+             include.dirs=T)
+}
+
+#IN PRODUCTION %%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ifo <- function(dir="C:/") {
+
+ prif <- list.files(dir, full.names=T, include.dirs=T)
+ print(list.files(dir, full.names=T, include.dirs=T))
+  print("Enter the row number for the desired file or directory")
+  ggk <- readline()
+  doit <- plasma(prif[ggk])
+  return(doit)
+}
+  #iNTERACTIVE FILE OPENER
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#Quickwrite
 ww <- function(df,fn) {
   complete_filename <- paste("C:/databin/QuickWrite/",fn,".csv",sep="")
   write.table(df, complete_filename, sep=",", row.names=F)
 }
 
+#Chop vnum colums from df
 Judo<- function(df,vnum) {
   gbomb<- names(df)
   dv<- gbomb[vnum]
@@ -10,11 +57,13 @@ Judo<- function(df,vnum) {
   rv
 } 
  
+#File type detector/opener
 plasma<- function(fp) {
   psav<- grep("\\.sav",fp)
   pcsv<- grep("\\.csv",fp)
   pdbf<- grep("\\.dbf",fp)
   pxls <- grep("\\.xls",fp)
+  ptxt <- grep("\\.txt",fp)
   dval<- if (length(psav)>0) {library(memisc) 
     library(data.table)
     as.data.table(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
@@ -27,9 +76,11 @@ plasma<- function(fp) {
   dxls <- if (length(pxls>0)) {library(readxl)
     read_excel(fp)}
   if (length(pxls>0)) return(dxls)
+  dtxt <- if (length(ptxt>0)) {readLines(fp)}
+  if (length(ptxt>0)) return(dtxt)
 }
 
-
+#Spam histograms
 hspam<- function(df) {
   library(ggplot2)
   nums<- sapply(df,is.numeric)
