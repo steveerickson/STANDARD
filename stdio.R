@@ -1,4 +1,8 @@
-
+############HOW DOES THIS WORK?
+#peelr was a list of data frames, I was able to merge all of them on GEOID
+#In one line of code:  
+#$funky <- Reduce(function(x, y) merge(x, y, by="GEO.ID2",all=TRUE), peelr)
+#FIGURE OUT WHATS UP WITH THIS AWESOME REDUCE FUNCTION .  
 
 #take the whole data frame and convert a new GEOID based on state,county,tract,and blockgroup
 MFtract <- function(df) {
@@ -52,7 +56,9 @@ ww <- function(obj, fn=NULL) {
   fn <-  if (is.character(fn) == FALSE) {fn <- ffn} else {fn <- fn}
   write.table(obj, fn, sep=",", row.names=F)
 }
-
+#@@@@@@@@@@@@@@@@@@@@@VRI SDFHUJIK DFASIUJK FDSKJIBDFSIKDSBUOJADS
+#@BROKEN:  DO NOT USE;
+#@IF/THEN PROBABLY BROKEN
 
 
 ##################000000000000000000000000 MISSING DATA
@@ -87,12 +93,28 @@ g <-   for (i in 1:length(vn)) {
   }
  return(g)
 } 
-#000000000000000000000000 MISSING DATA
-print("MISSING DATA FUNCTION LOADED:  qna")
-print("Qna takes a df and returns the percent missing for each variable.  Handy!")
-print("MISSING DATA FUNCTION LOADED:  NAS")
-print("NAS takes a df and a replacement value")
+#000000000000000000000000 MISSING DATA 
 ##################000000000000000000000000 MISSING DATA
+
+#Need a function to remove 100% NA COlumns
+killNA <- function(df) {
+  kill <- function(dfcol) {
+    return(sum(is.na(dfcol)))
+  }
+  ol <- list()
+  g <- for (i in 1:ncol(df)) {
+    ol[[i]] <- kill(df[,i])
+  }
+  soul <- grep(as.character(nrow(df)), ol)
+  rdf <- df[,-soul]
+  return(rdf)
+}
+
+recodeNA <- function(df, recodevalue) {
+  df[is.na(df)] <- recodevalue
+  return(df)
+}
+
 
 #Full file list.
 #ENHANCE:  it'd be nice if theprint was prettier, and it listed the "FILE TYPE" 
@@ -188,3 +210,146 @@ Spiderman<- function(data,dcols) {
 }
 
 
+
+
+##############MACHINE LEARNING
+#WRAPPER FOR XGBOOST - TAILORED FOR THE CRIME DATA
+#ENHANCE:  MODIFY FOR A MORE GENERIC INTERFACE.  
+ICER <- function(nreps, data, yvars, xvcs, nxvs, 
+                 hsrng, trnrng, nrounds, depth, etarange,
+                 testcol) {
+  y <- data[,yvars]
+  y[is.na(y)] <- 0
+  data[,yvars] <- y
+  
+  Spiderman<- function(data,dcols) {
+    library(Matrix)
+    nre<- nrow(data)
+    nce<- length(dcols)
+    mat<- matrix(0,nrow=nre,ncol=nce)
+    for (i in dcols) {
+      mat[,dcols[i]]<- data[,dcols[i]]
+    }
+    smat<- Matrix(mat,sparse=T)
+    smat
+  }
+  
+  boostLED <- function(data, xcols, ycol, trainpct,
+                       depth, eta, nthread, nrounds, hsc) {
+    library(xgboost) 
+    nex <- names(data)
+    ny <- nex[ycol]
+    y <- as.numeric(data[,ycol])
+    y[y<hsc] <- 0
+    y[y>=hsc] <- 1
+    data[,ycol] <- y
+    
+    samplen <- round(nrow(data)*trainpct, 0) 
+    sselect <- sample(1:nrow(data), samplen, replace=F)#Sample selector
+    testdata <- data[-sselect,]
+    traindata <- data[sselect,]
+    #Select x-variables for analysis from each data set, split out y variable, build list with sparse matrix
+    xtest <- testdata[,xcols]
+    xtrain <- traindata[,xcols]
+    testlabel <- testdata[,ycol]
+    trainlabel <- traindata[,ycol]
+    
+    xstest <- Spiderman(xtest, c(1:ncol(xtest)))
+    xstrain <- Spiderman(xtrain, c(1:ncol(xtrain))) 
+    stel <- list(data=xstest, label=testlabel) #Sparse test list                      
+    strl <- list(data=xstrain, label=trainlabel)
+    
+    #Train the model
+    training <- xgboost(data=strl$data, label=strl$label,
+                        max.depth=depth, eta=eta, nthread=nthread, nrounds=nrounds, objective="binary:logistic")
+    
+    #Use trained model for prediction of test data.
+    testing <- predict(training, stel$data)
+    UserOutput <- list(Model=training, Prediction=testing, Observed_Response=stel$label)
+    UserOutput$Prediction[UserOutput$Prediction<=.5] <- 0
+    UserOutput$Prediction[UserOutput$Prediction>.5] <- 1
+    rankdata <- data.frame(obs=as.numeric(UserOutput$Observed_Response)
+                           ,pre=UserOutput$Prediction)
+    ranked <- rankdata[order(-rankdata$obs),]
+    print(ranked[1:20,])
+    testcalc <- testing
+    testcalc[testcalc<=.5] <- 0
+    testcalc[testcalc>.5] <- 1  
+    UserOutput$xcols <- xcols
+    UserOutput$ycol <- ycol
+    UserOutput$xcolchars <- names(data[,xcols])
+    UserOutput$rank <- ranked
+    UserOutput$Model_Depth <- depth
+    UserOutput$HSC <- hsc
+    UserOutput$Train_Pct <- trainpct
+    UserOutput$ETA <- eta
+    return(UserOutput)
+  } 
+  
+  fma <- function(lmodels, testdata) {
+    
+    l <- lmodels
+    ycol <- l[[1]]$ycol
+    l$df <- testdata
+    
+    PredictLoop <- function(l) {
+      df <- l$df
+      l$df <- NULL
+      openlist <- list()
+      
+      for (i in 1:length(l)) {
+        openlist[[i]] <- Predictor(df=df, yvar=l[[i]]$ycol, xvars=l[[i]]$xcols, model=l[[i]]$Model, hsc=l[[i]]$HSC)
+        
+      }
+      return(openlist)
+    } 
+    
+    
+    PAI <- function(data, ycol) {
+      a <- sum(data$hotspot) #N cells forecasted
+      N <- sum(data[,ycol]) #N crimes in the obs data
+      # n = The sum of crimes committed within the area forecasted 
+      nlocator <- grep("1", data$hotspot)
+      y <- as.numeric(data[,ycol])
+      yl <- y[nlocator]
+      n <- sum(yl) # n = The sum of crimes committed within the area forecasted 
+      A <- nrow(data)  #Total area == number of "blocks" 
+      PAI <- (n/N)/(a/A)
+      rob <- sort(y, decreasing=T)
+      nb  <- sum(rob[1:a])
+      d <- (nb/N)/(a/A)
+      PEI <- PAI/d
+      
+      xl <- list(PAI=PAI, PEI=PEI)
+      return(xl)
+    }
+    
+    ldfs <- PredictLoop(l=l)
+    df2 <- lapply(ldfs, function(x) PAI(x, ycol=testcol))
+    return(df2)
+  } 
+  
+  
+  #nxvs - Number of xvariables to randomly include in each analysis
+  sroot <- rep(sample(xvcs, nxvs, replace=F), nreps) 
+  trtr <- seq(trnrng[1], trnrng[2], by=.1)
+  hsct <- seq(hsrng[1],hsrng[2], by=1)
+  etar <- seq(etarange[1], etarange[2], by=.1)
+  op <- list()
+  for (i in 1:nreps) {
+    op[[i]] <- boostLED(data=data, xcols=sample(xvcs,nxvs,replace=F), 
+                        ycol=yvars, trainpct=sample(trtr, 1), 
+                        depth=depth, eta=sample(etar, 1), nthread=4, nrounds=nrounds,
+                        hsc=sample(hsct,1))
+  }
+  names(op) <- paste0("MODEL_", seq_along(op))
+  
+  #op is the lmodels
+  #Data is the  data frame
+  
+  formalAssessment <- fma(lmodels=op, testdata=data)
+  op$PAI_PEI <- formalAssessment
+  print(op$PAI_PEI)
+  
+  return(op)
+}
