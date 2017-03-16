@@ -105,6 +105,8 @@ system.time(expr, gcFirst = TRUE) #For benching an expr
 Sys.time()#For direct access to the system time
 
 ###################STRINGS
+#Pad with 0s using sprintf
+ddd$pad_county <- sprintf("%03d", ddd$county)
 
 nbc<- gsub("\\.","",ncb)
 #String substitution:  Substitutes period with nothing in vector ncb
@@ -340,6 +342,9 @@ bas<-  ggplot(ac1, aes(x=ac1$year,y=ac1$amount,colour=ac1$fcode)) +
 #Axis line options
 #Change bgcolor to white
 #Set breaks for the x axis
+#NOTE:  You need these commands so that ggplot does not "ensure" that the data are set far from the axes
+scale_x_discrete(expand=c(0,0)) + 
+scale_y_continuous(expand=c(0,0)) +
 
 #ggplot histograms
 

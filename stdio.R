@@ -1,3 +1,38 @@
+############FUNCTION IDEAS
+#AlertnessXTask Generator:  Takes a vector of tasks, and asks the user to assign a predicted reqd lvl
+#of alertness to each. It then plots them in a color-coded manner so that work is more easily organized.
+
+#MatchApply:  Takes a weight matrix and a list of dfs, and spams the matching algorithm at it.  
+
+##########################
+#Remove duplicate values
+
+
+#Loop a subset, write table command perhaps?
+#HELLFIRE - burn a HUGE list of dfs out to a folder
+hellfire <- function(longdf, path, name) {
+  library(data.table)
+  longdf <- rbindlist(longdf, idcol="idnumber")
+  un <- unique(longdf$idnumber)
+  lun <- length(un)
+  for (i in 1:lun) {
+    write.table(subset(longdf, idnumber==i), paste(path,name,i,".csv",sep=""), sep=",",row.names=F)
+  }
+} 
+
+Z <- function(mean, popmean, popsd) {
+  z <- (mean-popmean)/popsd
+  return(z)
+}
+
+
+
+#Being fucked by Data.table?  RIP IT back to a df.
+ripDT <- function(datatable) {
+  reio <- unclass(datatable)
+  really <- as.data.frame(reio)
+  return(really)
+}
 ############HOW DOES THIS WORK?
 #peelr was a list of data frames, I was able to merge all of them on GEOID
 #In one line of code:  
