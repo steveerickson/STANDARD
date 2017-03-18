@@ -4,6 +4,15 @@
 
 #MatchApply:  Takes a weight matrix and a list of dfs, and spams the matching algorithm at it.  
 
+#APMERGE:  ALL-possible merge
+  #Function takes two or more datasets which share some key
+  #and whether the user wants to preserve, reduce, or amplify the given information
+#Decides on the correct criteria to judge a successful merge
+#Peforms many different attempts at merging until one satisfies the criteria
+#If it cant satisfy it gives its 10 best guesses. 
+
+
+
 ##########################
 #Remove duplicate values
 
