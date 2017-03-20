@@ -12,10 +12,13 @@
 #If it cant satisfy it gives its 10 best guesses. 
 
 
-
-##########################
-#Remove duplicate values
-
+ 
+#Writes a list of data frames to a list of filenames, same length obv
+writer <- function(list, filenames) {
+  for (i in 1(length(list))) {
+    write.table(list[[i]], filenames[i], sep=",", row.names=F)
+  }
+}
 
 #Loop a subset, write table command perhaps?
 #HELLFIRE - burn a HUGE list of dfs out to a folder
@@ -209,7 +212,9 @@ plasma<- function(fp) {
     library(data.table)
     as.data.table(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
   if (length(psav)>0) return(dval)
-  cval<-   if (length(pcsv)>0) (read.csv(fp,sep=",",header=T,as.is=T))
+  cval<-   if (length(pcsv)>0) {library(data.table)
+    require(bit64)
+    fread(fp,data.table=F)}
   if (length(pcsv)>0) return(cval)
   dbfl<- if (length(pdbf>0)) {library(foreign)
     read.dbf(fp,as.is=T)}
@@ -220,6 +225,8 @@ plasma<- function(fp) {
   dtxt <- if (length(ptxt>0)) {readLines(fp)}
   if (length(ptxt>0)) return(dtxt)
 }
+
+
 
 #Spam histograms
 hspam<- function(df) {
