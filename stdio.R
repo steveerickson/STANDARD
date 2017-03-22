@@ -1,3 +1,17 @@
+#Under construction
+#Function takes a data frame
+#And returns a list with data subset by every possible cat variable @ mean
+
+subsetter <- function(df) {
+  varclasses <- lapply(as.list(df), class) #This returns a list where each element
+  #Is the name of variable with the first element the class of the var
+  varnames <- names(df)
+  #Pull the unique values of each categorical variable
+  #Subset the data , export
+}
+
+
+
 ############FUNCTION IDEAS
 #AlertnessXTask Generator:  Takes a vector of tasks, and asks the user to assign a predicted reqd lvl
 #of alertness to each. It then plots them in a color-coded manner so that work is more easily organized.
@@ -199,9 +213,8 @@ Judo<- function(df,vnum) {
   dv<- gbomb[vnum]
   rv<- df[ , !(names(df) %in% dv)]
   rv
-} 
- 
-#File type detector/opener
+}  
+
 plasma<- function(fp) {
   psav<- grep("\\.sav",fp)
   pcsv<- grep("\\.csv",fp)
@@ -212,9 +225,7 @@ plasma<- function(fp) {
     library(data.table)
     as.data.table(as.data.set(spss.system.file(fp),stringsAsFactors=F))}
   if (length(psav)>0) return(dval)
-  cval<-   if (length(pcsv)>0) {library(data.table)
-    require(bit64)
-    fread(fp,data.table=F)}
+  cval<-   if (length(pcsv)>0) (read.csv(fp,sep=",",header=T,as.is=T))
   if (length(pcsv)>0) return(cval)
   dbfl<- if (length(pdbf>0)) {library(foreign)
     read.dbf(fp,as.is=T)}
@@ -225,7 +236,6 @@ plasma<- function(fp) {
   dtxt <- if (length(ptxt>0)) {readLines(fp)}
   if (length(ptxt>0)) return(dtxt)
 }
-
 
 
 #Spam histograms
