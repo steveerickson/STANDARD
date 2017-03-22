@@ -1,0 +1,10 @@
+LAB FUNCTION IDEA
+
+DE-ALIASER:  
+Words have different levels of abstraction:  "Tree" vs. "Acculturative Stress"
+Tree is a noun, object, physical
+AS is a noun, concept, ethereal
+
+FUNCTION GOAL:  Remove the call for abstract information about the second items from memory by using NLP.  
+STEP 1:  NLP scans the body of text and flags words at a certain level of abstraction
+STEP 2:  Provides "comments" or hover-available information on the abstract terms so I don't have to call incomplete memories.
