@@ -1,3 +1,61 @@
+#TO-DO LIST
+#DROPCHAR:  Drops character-type variables from df
+Connect <- function() {
+  library(RPostgreSQL)
+  drv <- dbDriver("PostgreSQL")
+  password <- readline(prompt="Enter password:")
+  con <- dbConnect(drv, dbname = "postgres",
+                   host = "localhost", port = 5432,
+                   user = "postgres", password = password)
+  return(con)
+}
+#wt - quick write table - assumes csv
+wcsv <- function(obj , fp) {
+  write.table(obj, fp, sep=",", row.names=F)
+}
+
+
+ttf <- function(table) {
+  rf <- data.frame(Name=names(table),
+                   Value=as.numeric(table))
+  return(rf)
+} #Table to frame - takes a table and turns it to a named df.
+#Auto-write CSV with option handler
+blast <- function(df,fp) {
+  write.table(df, fp, row.names=F, sep=",")
+}
+
+#REORDER COLS IN DF
+#bitxc <- b1[,c(7,9,8,10,14,15,16,6,13,5,12,4,11,17:20)]
+#This sets 7 as the first column, etc. 
+
+#Mplus  Extractor functions
+#Function takes an output file path and provides variable names
+#And means for an mplus imputation file
+pullMIM <- function(outfilepath) {
+  outfile <- readLines(outfilepath)
+  ess <- grep(toupper("Estimated sample statistics"), outfile)
+  cov <- grep("Covariances", outfile)
+  iso <- outfile[ess:cov[1]]
+  gm <- grep("Means", iso)
+  vloc <- gm+1
+  mloc <- vloc+2
+  variableNames <- iso[vloc]
+  Means <- iso[mloc]
+  #Pick up here - split the elements based on whitespace/ 
+  #Bind together into a df
+  smean <- strsplit(Means, " ")
+  lasmn <- lapply(smean, function(x) x <- x[nchar(x)>1]) #Perfect
+  svarn <- strsplit(variableNames, " ")
+  lavsm <- lapply(svarn, function(x) x <- x[nchar(x)>1])
+  #Unlisting should give us elements for a df
+  outputframe <- data.frame(Variables=unlist(lavsm),
+                            Means = unlist(lasmn))
+  return(outputframe)
+}
+
+
+
 #Under construction
 #Function takes a data frame
 #And returns a list with data subset by every possible cat variable @ mean
@@ -8,6 +66,13 @@ subsetter <- function(df) {
   varnames <- names(df)
   #Pull the unique values of each categorical variable
   #Subset the data , export
+}
+
+#Takes an atomic vector factor and returns a numeric
+unFactor <- function(atomicfactor) {
+  af <- as.character(atomicfactor)
+  an <- as.numeric(af)
+  return(an)
 }
 
 
