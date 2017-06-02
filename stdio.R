@@ -1,5 +1,48 @@
+
 #TO-DO LIST
 #DROPCHAR:  Drops character-type variables from df
+
+#IN PROGRESS
+Export_Mplus <- function(df, targetdir, filename) { 
+  varlist <- names(df)
+  shortvar <- unlist(lapply(varlist, function(x) substr(x, start=0,stop=8)))
+  
+}
+
+
+#SWEET little root function is an alternative to structure command
+  #TO ADD- automatically group variables by class
+  #TO ADD - if there are less than 7 unique values of a variable , it prints those
+root <- function(df) {
+  varnames <- names(df)
+  sumna <- sapply(df, function(x) sum(as.numeric(is.na(x))))
+  pctnas <- as.numeric((sumna/nrow(df))*100)
+  varclass <- as.character(sapply(df, class))
+  varrange <- sapply(df, range)
+  
+  for (i in 1:length(varnames)) {
+    msg <- paste0("Variable:  ",varnames[i])
+    print(msg, quote=F)
+    print(paste0("(", toupper(varclass[i]), ")"), quote=F)
+    print(paste0("Range:  ", varrange[1,i], " - ", varrange[2,i]), quote=F)
+    print(paste0("MISS%:  ", pctnas[i]), quote=F)
+    print("-----------------------", quote=F)
+  }
+  
+}
+
+th <- function(x) {
+  hist(x, col="royalblue4",border="black", ylab=NULL, xlab=NULL, main=NULL)
+}
+
+#Postgres connect function 
+#Function takes a list of data frames and a merge variable and returns an object merging all datasets on a default all=t
+mmerge <- function(ldf, mvar) {
+  basket <- Reduce(function(x,y) merge(x,y,by=mvar, all=T), ldf)
+  return(basket)
+}
+
+
 Connect <- function() {
   library(RPostgreSQL)
   drv <- dbDriver("PostgreSQL")
@@ -236,11 +279,11 @@ killNA <- function(df) {
   return(rdf)
 }
 
-recodeNA <- function(df, recodevalue) {
-  df[is.na(df)] <- recodevalue
-  return(df)
+recodeNA <- function(df, recodeval) {
+  dfdevil <- lapply(df, function(x) {x[is.na(x)] <- recodeval
+return(x)})
+ return(as.data.frame(dfdevil)) 
 }
-
 
 #Full file list.
 #ENHANCE:  it'd be nice if theprint was prettier, and it listed the "FILE TYPE" 
@@ -303,6 +346,7 @@ plasma<- function(fp) {
 }
 
 
+#FIX FUNCTION - borders for the bars, and squish the y-axis up into the bars
 #Spam histograms
 hspam<- function(df) {
   library(ggplot2)
@@ -315,7 +359,7 @@ hspam<- function(df) {
       plots <-ggplot(x,aes_string(x = nm[i])) + geom_histogram(fill = "tomato") +
         theme_bw() + 
         theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
-      ggsave(plots,filename=paste("G:/DATA/",nm[i],".png",sep=""))
+      ggsave(plots,filename=paste("C:/databin/",nm[i],".png",sep=""))
     }
   }
   HS(dfnt)
