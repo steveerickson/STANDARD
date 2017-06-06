@@ -1,6 +1,18 @@
+#MULTIPLE SUBSET:
+#               errp$alcaco[which(errp$ACOBI==1 | errp$ACABI==1)] <- 1
 
 #TO-DO LIST
 #DROPCHAR:  Drops character-type variables from df
+dropchar <- function(df) {
+  rf <- df
+  sapper <- sapply(rf, FUN="class")
+  gsappr <- grep("character", sapper)
+  df <- rf[,-gsappr]
+  return(df)
+}
+#FUNCTION COMPLETE!   VERY HANDY!   
+
+
 
 #IN PROGRESS
 Export_Mplus <- function(df, targetdir, filename) { 
