@@ -1,30 +1,89 @@
 #MULTIPLE SUBSET:
 #               errp$alcaco[which(errp$ACOBI==1 | errp$ACABI==1)] <- 1
+wc <- function(x, path) {
+  write.table(x, path, sep=",", row.names=F)
+}
+#TEMPLATE - CREATE A MORE GENERAL VERSION
+#STAPLE is used to do a merge of 2 dbf files
 
+STAPLE <- function(grid_dir, grid_layername, df, write_dir, write_layer_name="STANDARD",
+                   byx, byy) {
+  library(GISTools)
+  library(rgdal)
+  hell <- readOGR(dsn=grid_dir, layer=grid_layername)
+  hmerge <- merge(hell, df, by.x=byx, by.y=byy,
+                  all.x=T, all.y=T)
+  writeOGR(hmerge, dsn=write_dir, write_layer_name, driver="ESRI Shapefile")
+}
+
+########STRINGS
+
+simpleCap <- function(x) {
+  s <- strsplit(x, " ")[[1]]
+  paste(toupper(substring(s, 1,1)), substring(s, 2),
+        sep="", collapse=" ")
+}
+
+#  USAGE - wrap with sapply brop$County <- sapply(brop$county, simpleCap)
+
+#moldfs = mean of a list of dfs
+#Takes the above and applies the mean and SD functions returning the result in a list
+moldfs <- function(ldf) {
+  mopen <- list()
+  popen <- list()
+  df1 <- ldf[[1]]
+  exvar <- lapply(ldf, function(x) sapply(x, FUN="mean"))
+  sdvar <- lapply(ldf, function(x) sapply(x, FUN="sd"))
+  for (i in 1:ncol(df1)) {
+    mopen[[i]] <- mean(unlist(lapply(exvar, function(x) x[i])))
+    popen[[i]] <- mean(unlist(lapply(sdvar, function(x) x[i])))
+  }
+  advocate <- list(mean=mopen, sd=popen)
+  return(advocate)
+} 
 #TO-DO LIST
 #DROPCHAR:  Drops character-type variables from df
 dropchar <- function(df) {
   rf <- df
   sapper <- sapply(rf, FUN="class")
   gsappr <- grep("character", sapper)
+  if (length(gsappr)<1) {return(df)}
   df <- rf[,-gsappr]
   return(df)
-}
+} 
 #FUNCTION COMPLETE!   VERY HANDY!   
 
+#NEXT:  Add an function to recode all factors to characters in a df
 
 
-#IN PROGRESS
-Export_Mplus <- function(df, targetdir, filename) { 
+
+
+Export_Mplus <- function(df, targetdir, filename, misscode=-999) {
+  df <- dropchar(df)
   varlist <- names(df)
   shortvar <- unlist(lapply(varlist, function(x) substr(x, start=0,stop=8)))
+  varpath <- paste0(targetdir, "/", filename, "_varlist.txt")
+  datpath <- paste0(targetdir, "/", filename, ".dat")
+  df <- as.data.frame(
+    lapply(
+      df, function(x) {x[is.na(x)] <- misscode
+      return(x)}))
   
+  write(toupper(shortvar), varpath)
+  msg1 <- paste0("Exporting mplus file:  \n")
+  cat(msg1)
+  cat(datpath, "\n")
+  write.table(df, datpath, sep="\t", row.names=F, col.names=F)
+  msg2 <- paste0("Wrote ",ncol(df)," variables and ", nrow(df), " cases.")
+  cat(msg2, "\n")
+  cat("Missing data code:",  misscode)
 }
+
 
 
 #SWEET little root function is an alternative to structure command
-  #TO ADD- automatically group variables by class
-  #TO ADD - if there are less than 7 unique values of a variable , it prints those
+#TO ADD- automatically group variables by class
+#TO ADD - if there are less than 7 unique values of a variable , it prints those
 root <- function(df) {
   varnames <- names(df)
   sumna <- sapply(df, function(x) sum(as.numeric(is.na(x))))
@@ -139,14 +198,14 @@ unFactor <- function(atomicfactor) {
 #MatchApply:  Takes a weight matrix and a list of dfs, and spams the matching algorithm at it.  
 
 #APMERGE:  ALL-possible merge
-  #Function takes two or more datasets which share some key
-  #and whether the user wants to preserve, reduce, or amplify the given information
+#Function takes two or more datasets which share some key
+#and whether the user wants to preserve, reduce, or amplify the given information
 #Decides on the correct criteria to judge a successful merge
 #Peforms many different attempts at merging until one satisfies the criteria
 #If it cant satisfy it gives its 10 best guesses. 
 
 
- 
+
 #Writes a list of data frames to a list of filenames, same length obv
 writer <- function(list, filenames) {
   for (i in 1(length(list))) {
@@ -264,7 +323,7 @@ qna <- function(df) {
 print.qna <- function(qna) {
   vn <- qna$VariableName
   vpcts <- qna$Percents
-g <-   for (i in 1:length(vn)) {
+  g <-   for (i in 1:length(vn)) {
     print("-----------------------------")
     print(paste0("VARIABLE:         ", vn[i]))
     cat("\n")
@@ -272,8 +331,12 @@ g <-   for (i in 1:length(vn)) {
     print("-----------------------------")
     cat("\n")
   }
- return(g)
+  return(g)
 } 
+#NOTE:  Change this method to use cat on the lines that currently use print
+  #You can use this to turn quote off and cat automatically doesnt print the number 1 next to all
+
+
 #000000000000000000000000 MISSING DATA 
 ##################000000000000000000000000 MISSING DATA
 
@@ -293,8 +356,8 @@ killNA <- function(df) {
 
 recodeNA <- function(df, recodeval) {
   dfdevil <- lapply(df, function(x) {x[is.na(x)] <- recodeval
-return(x)})
- return(as.data.frame(dfdevil)) 
+  return(x)})
+  return(as.data.frame(dfdevil)) 
 }
 
 #Full file list.
@@ -310,15 +373,15 @@ FF <- function(dir) {
 #IN PRODUCTION %%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ifo <- function(dir="C:/") {
-
- prif <- list.files(dir, full.names=T, include.dirs=T)
- print(list.files(dir, full.names=T, include.dirs=T))
+  
+  prif <- list.files(dir, full.names=T, include.dirs=T)
+  print(list.files(dir, full.names=T, include.dirs=T))
   print("Enter the row number for the desired file or directory")
   ggk <- readline()
   doit <- plasma(prif[ggk])
   return(doit)
 }
-  #iNTERACTIVE FILE OPENER
+#iNTERACTIVE FILE OPENER
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #Quickwrite
@@ -360,7 +423,7 @@ plasma<- function(fp) {
 
 #FIX FUNCTION - borders for the bars, and squish the y-axis up into the bars
 #Spam histograms
-hspam<- function(df) {
+hspam<- function(df, targetdir) {
   library(ggplot2)
   nums<- sapply(df,is.numeric)
   nt<- which(nums=="TRUE")
@@ -371,7 +434,7 @@ hspam<- function(df) {
       plots <-ggplot(x,aes_string(x = nm[i])) + geom_histogram(fill = "tomato") +
         theme_bw() + 
         theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
-      ggsave(plots,filename=paste("C:/databin/",nm[i],".png",sep=""))
+      ggsave(plots,filename=paste0(targetdir,"/",nm[i],".png"))
     }
   }
   HS(dfnt)
