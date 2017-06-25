@@ -1,3 +1,16 @@
+#################NEXT FUNCTIONS
+killFactor <- function(df) {
+  #Identifies colnums that are factors
+  #Runs as character on each column
+  #Pastes the df back together and returns it
+  
+}
+
+
+
+##############################
+
+
 #MULTIPLE SUBSET:
 #               errp$alcaco[which(errp$ACOBI==1 | errp$ACABI==1)] <- 1
 wc <- function(x, path) {
