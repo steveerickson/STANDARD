@@ -1,0 +1,20 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+<<echo=F>>=
+source("C:/git/STANDARD/stdio.R")
+rates <- plasma("C:/git/dbhdd/maps/PC_Revised/tables/Statewide_Means.csv")
+rv <- unlist(unclass(rates))
+nv <- names(unlist(unclass(rates)))
+names(rv) <- NULL
+av <- unlist(lapply(rv, round, 2))
+@
+
+Statewide, rates of poisoning across counties rose by \Sexpr{av[13]} per 10,000 persons, from an average of \Sexpr{av[1]} per 10k in 2012 to \Sexpr{av[7]} per 10k in 2016.  During the same period, opiate poisonings increased by \Sexpr{av[15]}/10k, from \Sexpr{av[4]}/10k in 2012 to \Sexpr{av[10]}/10k in 2016.  Sedative poisonings increased by \Sexpr{av[16]}/10k, from \Sexpr{av[3]}/10k in 2012 to \Sexpr{av[9]}/10k in 2016.  Stimulant poisonings decreased by \Sexpr{abs(av[14])}/10k, from \Sexpr{av[2]}/10k in 2012 to \Sexpr{av[8]}/10k in 2016.  Ethanol poisonings increased by \Sexpr{av[17]}/10k, from \Sexpr{av[6]}/10k in 2012 to \Sexpr{av[12]}/10k in 2016.  
+
+
+
+
+\end{document}
